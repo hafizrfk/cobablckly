@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Visual Programming Studio</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Memuat Blockly dari CDN -->
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/python_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    <!-- Tambahan library untuk konversi kode -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>🤖 ESP32 Visual Programming Studio</h1>
+    </header>
+
+    <main>
+        <!-- Area Blockly -->
+        <div id="blocklyContainer">
+            <div id="blocklyDiv"></div>
+        </div>
+
+        <!-- Panel Kode -->
+        <div id="codePanel">
+            <div class="connection-panel">
+                <div class="status-bar">
+                    <span class="status-indicator status-disconnected"></span>
+                    <span id="connectionStatus">Disconnected</span>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="espIpAddress" placeholder="ESP32 IP Address (e.g., 192.168.1.100)">
+                </div>
+            </div>
+
+            <div class="code-tabs">
+                <button class="tab-button active" data-format="arduino">Arduino</button>
+                <button class="tab-button" data-format="cpp">C++</button>
+                <button class="tab-button" data-format="python">MicroPython</button>
+                <button class="tab-button" data-format="binary">Binary</button>
+            </div>
+
+            <pre id="codeOutput"></pre>
+
+            <div class="button-group">
+                <button onclick="generateCode()">
+                    <span>🔄</span> Generate Code
+                </button>
+                <button onclick="uploadOTA()">
+                    <span>📤</span> Upload OTA
+                </button>
+                <button onclick="downloadCode()">
+                    <span>💾</span> Download
+                </button>
+                <button onclick="resetBlockly()">
+                    <span>🗑️</span> Reset
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Definisi Toolbox -->
+    <xml id="toolbox" style="display: none">
+        <category name="ESP32 IO" colour="160">
+            <block type="blink_led"></block>
+            <block type="set_led"></block>
+            <block type="delay_ms"></block>
+            <block type="read_analog"></block>
+        </category>
+        <category name="Logika" colour="210">
+            <block type="controls_if"></block>
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_boolean"></block>
+        </category>
+        <category name="Perulangan" colour="120">
+            <block type="controls_repeat_ext"></block>
+            <block type="controls_whileUntil"></block>
+            <block type="controls_for"></block>
+        </category>
+        <category name="Matematika" colour="230">
+            <block type="math_number"></block>
+            <block type="math_arithmetic"></block>
+            <block type="math_single"></block>
+            <block type="math_constrain"></block>
+            <block type="math_random_int"></block>
+        </category>
+        <category name="Variabel" colour="330" custom="VARIABLE"></category>
+    </xml>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
