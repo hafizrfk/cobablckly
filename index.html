@@ -78,17 +78,35 @@
             <block type="delay_ms"></block>
             <block type="read_analog"></block>
         </category>
+
+        <category name="Sensor" colour="230">
+            <block type="dht_sensor"></block>
+            <block type="ultrasonic_read"></block>
+        </category>
+
+        <category name="Aktuator" colour="160">
+            <block type="servo_control"></block>
+        </category>
+
+        <category name="Konektivitas" colour="290">
+            <block type="wifi_connect"></block>
+            <block type="mqtt_connect"></block>
+            <block type="mqtt_publish"></block>
+        </category>
+
         <category name="Logika" colour="210">
             <block type="controls_if"></block>
             <block type="logic_compare"></block>
             <block type="logic_operation"></block>
             <block type="logic_boolean"></block>
         </category>
+
         <category name="Perulangan" colour="120">
             <block type="controls_repeat_ext"></block>
             <block type="controls_whileUntil"></block>
             <block type="controls_for"></block>
         </category>
+
         <category name="Matematika" colour="230">
             <block type="math_number"></block>
             <block type="math_arithmetic"></block>
@@ -96,6 +114,7 @@
             <block type="math_constrain"></block>
             <block type="math_random_int"></block>
         </category>
+
         <category name="Variabel" colour="330" custom="VARIABLE"></category>
     </xml>
 
