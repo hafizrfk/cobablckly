@@ -203,7 +203,7 @@ javascript.javascriptGenerator.forBlock['blink_led'] = function (block) {
 };
 
 // Generator kode untuk blok-blok baru
-Blockly.JavaScript['wifi_connect'] = function (block) {
+javascript.javascriptGenerator.forBlock['wifi_connect'] = function (block) {
   var ssid = block.getFieldValue('SSID');
   var pass = block.getFieldValue('PASS');
   return `WiFi.begin("${ssid}", "${pass}");\n` +
@@ -212,7 +212,7 @@ Blockly.JavaScript['wifi_connect'] = function (block) {
     `}\n`;
 };
 
-Blockly.JavaScript['dht_sensor'] = function (block) {
+javascript.javascriptGenerator.forBlock['dht_sensor'] = function (block) {
   var type = block.getFieldValue('TYPE');
   var pin = block.getFieldValue('PIN');
   var reading = block.getFieldValue('READING');
@@ -220,26 +220,26 @@ Blockly.JavaScript['dht_sensor'] = function (block) {
   return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
 };
 
-Blockly.JavaScript['servo_control'] = function (block) {
+javascript.javascriptGenerator.forBlock['servo_control'] = function (block) {
   var pin = block.getFieldValue('PIN');
   var angle = block.getFieldValue('ANGLE');
   return `servo${pin}.write(${angle});\n`;
 };
 
-Blockly.JavaScript['ultrasonic_read'] = function (block) {
+javascript.javascriptGenerator.forBlock['ultrasonic_read'] = function (block) {
   var trig = block.getFieldValue('TRIG');
   var echo = block.getFieldValue('ECHO');
   var code = `readUltrasonic(${trig}, ${echo})`;
   return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
 };
 
-Blockly.JavaScript['mqtt_connect'] = function (block) {
+javascript.javascriptGenerator.forBlock['mqtt_connect'] = function (block) {
   var broker = block.getFieldValue('BROKER');
   var port = block.getFieldValue('PORT');
   return `mqttClient.connect("${broker}", ${port});\n`;
 };
 
-Blockly.JavaScript['mqtt_publish'] = function (block) {
+javascript.javascriptGenerator.forBlock['mqtt_publish'] = function (block) {
   var topic = block.getFieldValue('TOPIC');
   var message = Blockly.JavaScript.valueToCode(block, 'MESSAGE',
     Blockly.JavaScript.ORDER_ATOMIC) || '""';
