@@ -77,6 +77,102 @@ Blockly.Blocks['read_analog'] = {
   }
 };
 
+// Blok untuk menghubungkan ke WiFi
+Blockly.Blocks['wifi_connect'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("Hubungkan ke WiFi SSID")
+      .appendField(new Blockly.FieldTextInput("nama_wifi"), "SSID")
+      .appendField("password")
+      .appendField(new Blockly.FieldTextInput("password"), "PASS");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+    this.setTooltip("Menghubungkan ESP32 ke jaringan WiFi");
+  }
+};
+
+// Blok untuk membaca sensor DHT
+Blockly.Blocks['dht_sensor'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("Baca sensor DHT")
+      .appendField(new Blockly.FieldDropdown([
+        ["DHT11", "DHT11"],
+        ["DHT22", "DHT22"]
+      ]), "TYPE")
+      .appendField("pin")
+      .appendField(new Blockly.FieldNumber(4, 0, 40), "PIN")
+      .appendField("baca")
+      .appendField(new Blockly.FieldDropdown([
+        ["suhu", "TEMP"],
+        ["kelembaban", "HUM"]
+      ]), "READING");
+    this.setOutput(true, "Number");
+    this.setColour(230);
+    this.setTooltip("Membaca suhu atau kelembaban dari sensor DHT");
+  }
+};
+
+// Blok untuk mengontrol servo
+Blockly.Blocks['servo_control'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("Set servo pin")
+      .appendField(new Blockly.FieldNumber(13, 0, 40), "PIN")
+      .appendField("ke sudut")
+      .appendField(new Blockly.FieldNumber(90, 0, 180), "ANGLE");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(160);
+    this.setTooltip("Mengontrol servo motor");
+  }
+};
+
+// Blok untuk membaca jarak ultrasonic
+Blockly.Blocks['ultrasonic_read'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("Baca jarak ultrasonic")
+      .appendField("TRIG pin")
+      .appendField(new Blockly.FieldNumber(5, 0, 40), "TRIG")
+      .appendField("ECHO pin")
+      .appendField(new Blockly.FieldNumber(6, 0, 40), "ECHO");
+    this.setOutput(true, "Number");
+    this.setColour(230);
+    this.setTooltip("Membaca jarak dari sensor ultrasonic HC-SR04");
+  }
+};
+
+// Blok untuk menghubungkan ke MQTT broker
+Blockly.Blocks['mqtt_connect'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("Hubungkan ke MQTT broker")
+      .appendField(new Blockly.FieldTextInput("broker.mqtt.com"), "BROKER")
+      .appendField("port")
+      .appendField(new Blockly.FieldNumber(1883, 0), "PORT");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip("Menghubungkan ke MQTT broker");
+  }
+};
+
+// Blok untuk publish pesan ke MQTT
+Blockly.Blocks['mqtt_publish'] = {
+  init: function () {
+    this.appendValueInput("MESSAGE")
+      .setCheck(null)
+      .appendField("Publish ke topic")
+      .appendField(new Blockly.FieldTextInput("esp/data"), "TOPIC");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip("Publish pesan ke MQTT topic");
+  }
+};
+
 // Generator kode untuk setiap blok
 javascript.javascriptGenerator.forBlock['set_led'] = function (block) {
   var pin = block.getFieldValue('PIN');
@@ -99,57 +195,55 @@ javascript.javascriptGenerator.forBlock['blink_led'] = function (block) {
   var pin = block.getFieldValue('PIN');
   var delay = block.getFieldValue('DELAY');
   var code = `
-#include <WiFi.h>
-#include <ArduinoOTA.h>
-
-const char* ssid = "Iroschool";
-const char* password = "D1866VBV";
-
-void setup() {
-    Serial.begin(115200);
-    pinMode(${pin}, OUTPUT);
-
-    // Koneksi ke WiFi
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("\\n✅ Terhubung ke WiFi");
-
-    // Setup OTA
-    ArduinoOTA.onStart([]() {
-        Serial.println("🚀 Mulai OTA...");
-    });
-
-    ArduinoOTA.onEnd([]() {
-        Serial.println("\\n✅ OTA Selesai!");
-    });
-
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        Serial.printf("📦 Progress: %u%%\\r", (progress / (total / 100)));
-    });
-
-    ArduinoOTA.onError([](ota_error_t error) {
-        Serial.printf("❌ Error[%u]: ", error);
-    });
-
-    ArduinoOTA.begin();
-    Serial.println("📡 OTA Siap!");
-    Serial.print("IP Address: ");
-    Serial.println(WiFi.localIP());
-}
-
-void loop() {
-    ArduinoOTA.handle();
-    
-    digitalWrite(${pin}, HIGH);
-    delay(${delay});
-    digitalWrite(${pin}, LOW);
-    delay(${delay});
-}
-`;
+  digitalWrite(${pin}, HIGH);
+  delay(${delay});
+  digitalWrite(${pin}, LOW);
+  delay(${delay});\n`;
   return code;
+};
+
+// Generator kode untuk blok-blok baru
+Blockly.JavaScript['wifi_connect'] = function (block) {
+  var ssid = block.getFieldValue('SSID');
+  var pass = block.getFieldValue('PASS');
+  return `WiFi.begin("${ssid}", "${pass}");\n` +
+    `while (WiFi.status() != WL_CONNECTED) {\n` +
+    `  delay(500);\n` +
+    `}\n`;
+};
+
+Blockly.JavaScript['dht_sensor'] = function (block) {
+  var type = block.getFieldValue('TYPE');
+  var pin = block.getFieldValue('PIN');
+  var reading = block.getFieldValue('READING');
+  var code = `dht.${reading === 'TEMP' ? 'readTemperature()' : 'readHumidity()'}`;
+  return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
+Blockly.JavaScript['servo_control'] = function (block) {
+  var pin = block.getFieldValue('PIN');
+  var angle = block.getFieldValue('ANGLE');
+  return `servo${pin}.write(${angle});\n`;
+};
+
+Blockly.JavaScript['ultrasonic_read'] = function (block) {
+  var trig = block.getFieldValue('TRIG');
+  var echo = block.getFieldValue('ECHO');
+  var code = `readUltrasonic(${trig}, ${echo})`;
+  return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
+Blockly.JavaScript['mqtt_connect'] = function (block) {
+  var broker = block.getFieldValue('BROKER');
+  var port = block.getFieldValue('PORT');
+  return `mqttClient.connect("${broker}", ${port});\n`;
+};
+
+Blockly.JavaScript['mqtt_publish'] = function (block) {
+  var topic = block.getFieldValue('TOPIC');
+  var message = Blockly.JavaScript.valueToCode(block, 'MESSAGE',
+    Blockly.JavaScript.ORDER_ATOMIC) || '""';
+  return `mqttClient.publish("${topic}", String(${message}));\n`;
 };
 
 // Fungsi untuk menampilkan kode
@@ -198,21 +292,68 @@ function resetBlockly() {
 // Fungsi untuk generate kode dalam berbagai format
 function generateCode(format = 'arduino') {
   const code = Blockly.JavaScript.workspaceToCode(workspace);
-  let formattedCode = code;
+  let formattedCode = '';
+
+  // Template dasar untuk Arduino
+  const arduinoTemplate = `
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <DHT.h>
+#include <ESP32Servo.h>
+#include <PubSubClient.h>
+
+// Inisialisasi objek
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
+${getDHTInitCode()}
+${getServoInitCode()}
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Inisialisasi pin
+  ${getInitPinCode()}
+  
+  // Setup sensor dan aktuator
+  ${getSetupCode()}
+}
+
+void loop() {
+  ${code}
+}`;
 
   switch (format) {
     case 'cpp':
-      formattedCode = convertToCpp(code);
+      formattedCode = convertToCpp(arduinoTemplate);
       break;
     case 'python':
       formattedCode = convertToPython(code);
       break;
     case 'binary':
-      formattedCode = convertToBinary(code);
+      // Untuk binary, kita hanya mengembalikan kode Arduino
+      formattedCode = arduinoTemplate;
       break;
+    default:
+      formattedCode = arduinoTemplate;
   }
 
   document.getElementById('codeOutput').textContent = formattedCode;
+}
+
+// Helper function untuk mendapatkan inisialisasi pin
+function getInitPinCode() {
+  const blocks = workspace.getAllBlocks();
+  const pins = new Set();
+
+  blocks.forEach(block => {
+    if (block.type === 'blink_led' || block.type === 'set_led') {
+      pins.add(block.getFieldValue('PIN'));
+    }
+  });
+
+  return Array.from(pins).map(pin => `pinMode(${pin}, OUTPUT);`).join('\n  ');
 }
 
 // Konversi ke C++
@@ -240,51 +381,55 @@ if __name__ == "__main__":
 `;
 }
 
-// Konversi ke Binary
-function convertToBinary(code) {
-  return btoa(code); // Base64 encoding sebagai contoh
-}
-
-// Fungsi Process OTA
+// Fungsi Process OTA yang lebih sederhana
 async function processOTA() {
-  // Ambil format kode
   const format = document.querySelector('.tab-button.active').dataset.format;
   const code = document.getElementById('codeOutput').textContent;
-  const blob = new Blob([code], { type: 'application/octet-stream' }); // Menggunakan tipe biner
-  // const filename = format === 'binary' ? 'firmware.bin' : format === 'python' ? 'esp32_code.py' : `esp32_code.${format}`; // Pastikan format Python adalah .py
-  const filename = format === 'binary' ? 'esp32_code.bin' : format === 'arduino' ? 'esp32_code.ino' : format === 'python' ? 'esp32_code.py': `esp32_code.${format}`;
-  // Simpan Blob dalam variabel sementara untuk digunakan kembali saat upload
-  const savedBlob = blob;
-
-  // Unduh file ke komputer
-  saveAs(blob, filename);
-
-  // Tunggu sejenak sebelum melanjutkan upload
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Mulai proses upload menggunakan blob yang telah disimpan
-  const ipAddress = document.getElementById('espIpAddress').value;
-  if (!ipAddress) {
-    alert('Masukkan IP Address ESP32!');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('update', savedBlob, 'firmware.bin'); // Nama file diubah menjadi firmware.bin untuk OTA
 
   try {
+    // Buat file sesuai format
+    const filename = format === 'binary' ? 'esp32_code.ino' :
+      format === 'arduino' ? 'esp32_code.ino' :
+        format === 'python' ? 'esp32_code.py' :
+          `esp32_code.${format}`;
+
+    // Simpan file
+    const blob = new Blob([code], { type: 'text/plain' });
+    saveAs(blob, filename);
+
+    // Tampilkan instruksi untuk binary
+    if (format === 'binary') {
+      alert(`File Arduino telah didownload sebagai ${filename}\n\n` +
+        'Untuk mengkompilasi ke binary:\n' +
+        '1. Buka Arduino IDE\n' +
+        '2. Load file yang baru didownload\n' +
+        '3. Pilih Tools > ESP32 Sketch Data Upload\n' +
+        '4. Atau compile dan gunakan hasil binary dari folder build');
+      return;
+    }
+
+    // Proses upload untuk format lain
+    const ipAddress = document.getElementById('espIpAddress').value;
+    if (!ipAddress) {
+      throw new Error('IP Address tidak boleh kosong');
+    }
+
+    const formData = new FormData();
+    formData.append('update', blob, 'sketch.ino');
+
     const response = await fetch(`http://${ipAddress}/update`, {
       method: 'POST',
       body: formData
     });
 
-    if (response.ok) {
-      alert('✅ Firmware berhasil diupload ke ESP32!\nESP32 akan restart dalam beberapa detik.');
-    } else {
-      throw new Error('Upload gagal');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    alert('✅ Kode berhasil diupload ke ESP32!\nESP32 akan restart dalam beberapa detik.');
   } catch (error) {
-    alert('❌ Gagal upload: ' + error.message + '\nPastikan:\n1. IP Address benar\n2. ESP32 terhubung ke WiFi\n3. Komputer dan ESP32 dalam jaringan yang sama');
+    console.error('Upload error:', error);
+    alert(`❌ Gagal upload: ${error.message}\nPastikan:\n1. IP Address benar\n2. ESP32 terhubung ke WiFi\n3. Komputer dan ESP32 dalam jaringan yang sama`);
   }
 }
 
@@ -340,3 +485,56 @@ function updateConnectionStatus(connected) {
 
 // Check connection setiap 5 detik
 setInterval(checkConnection, 5000);
+
+// Helper functions untuk generate kode setup
+function getDHTInitCode() {
+  const blocks = workspace.getAllBlocks();
+  const dhtBlocks = blocks.filter(block => block.type === 'dht_sensor');
+  if (dhtBlocks.length === 0) return '';
+
+  const dhtPins = new Set(dhtBlocks.map(block => block.getFieldValue('PIN')));
+  return Array.from(dhtPins).map(pin =>
+    `DHT dht${pin}(${pin}, DHT11);`
+  ).join('\n');
+}
+
+function getServoInitCode() {
+  const blocks = workspace.getAllBlocks();
+  const servoBlocks = blocks.filter(block => block.type === 'servo_control');
+  if (servoBlocks.length === 0) return '';
+
+  const servoPins = new Set(servoBlocks.map(block => block.getFieldValue('PIN')));
+  return Array.from(servoPins).map(pin =>
+    `Servo servo${pin};`
+  ).join('\n');
+}
+
+function getSetupCode() {
+  const blocks = workspace.getAllBlocks();
+  let setupCode = '';
+
+  // Setup untuk DHT
+  blocks.filter(block => block.type === 'dht_sensor')
+    .forEach(block => {
+      const pin = block.getFieldValue('PIN');
+      setupCode += `dht${pin}.begin();\n  `;
+    });
+
+  // Setup untuk Servo
+  blocks.filter(block => block.type === 'servo_control')
+    .forEach(block => {
+      const pin = block.getFieldValue('PIN');
+      setupCode += `servo${pin}.attach(${pin});\n  `;
+    });
+
+  // Setup untuk Ultrasonic
+  blocks.filter(block => block.type === 'ultrasonic_read')
+    .forEach(block => {
+      const trig = block.getFieldValue('TRIG');
+      const echo = block.getFieldValue('ECHO');
+      setupCode += `pinMode(${trig}, OUTPUT);\n  `;
+      setupCode += `pinMode(${echo}, INPUT);\n  `;
+    });
+
+  return setupCode;
+}
