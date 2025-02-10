@@ -78,24 +78,24 @@ Blockly.Blocks['read_analog'] = {
 };
 
 // Generator kode untuk setiap blok
-Blockly.JavaScript['set_led'] = function (block) {
+javascript.javascriptGenerator.forBlock['set_led'] = function (block) {
   var pin = block.getFieldValue('PIN');
   var state = block.getFieldValue('STATE');
   return `digitalWrite(${pin}, ${state});\n`;
 };
 
-Blockly.JavaScript['delay_ms'] = function (block) {
+javascript.javascriptGenerator.forBlock['delay_ms'] = function (block) {
   var delay_time = block.getFieldValue('DELAY');
   return `delay(${delay_time});\n`;
 };
 
-Blockly.JavaScript['read_analog'] = function (block) {
+javascript.javascriptGenerator.forBlock['read_analog'] = function (block) {
   var pin = block.getFieldValue('PIN');
   return [`analogRead(${pin})`, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 // Generator kode Arduino untuk ESP32
-Blockly.JavaScript['blink_led'] = function (block) {
+javascript.javascriptGenerator.forBlock['blink_led'] = function (block) {
   var pin = block.getFieldValue('PIN');
   var delay = block.getFieldValue('DELAY');
   var code = `
