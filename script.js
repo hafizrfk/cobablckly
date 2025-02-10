@@ -245,12 +245,55 @@ function convertToBinary(code) {
   return btoa(code); // Base64 encoding sebagai contoh
 }
 
+// Fungsi Process OTA
+async function processOTA() {
+  // Ambil format kode
+  const format = document.querySelector('.tab-button.active').dataset.format;
+  const code = document.getElementById('codeOutput').textContent;
+  const blob = new Blob([code], { type: 'application/octet-stream' }); // Menggunakan tipe biner
+  // const filename = format === 'binary' ? 'firmware.bin' : format === 'python' ? 'esp32_code.py' : `esp32_code.${format}`; // Pastikan format Python adalah .py
+  const filename = format === 'binary' ? 'esp32_code.bin' : format === 'arduino' ? 'esp32_code.ino' : format === 'python' ? 'esp32_code.py': `esp32_code.${format}`;
+  // Simpan Blob dalam variabel sementara untuk digunakan kembali saat upload
+  const savedBlob = blob;
+
+  // Unduh file ke komputer
+  saveAs(blob, filename);
+
+  // Tunggu sejenak sebelum melanjutkan upload
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Mulai proses upload menggunakan blob yang telah disimpan
+  const ipAddress = document.getElementById('espIpAddress').value;
+  if (!ipAddress) {
+    alert('Masukkan IP Address ESP32!');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('update', savedBlob, 'firmware.bin'); // Nama file diubah menjadi firmware.bin untuk OTA
+
+  try {
+    const response = await fetch(`http://${ipAddress}/update`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      alert('✅ Firmware berhasil diupload ke ESP32!\nESP32 akan restart dalam beberapa detik.');
+    } else {
+      throw new Error('Upload gagal');
+    }
+  } catch (error) {
+    alert('❌ Gagal upload: ' + error.message + '\nPastikan:\n1. IP Address benar\n2. ESP32 terhubung ke WiFi\n3. Komputer dan ESP32 dalam jaringan yang sama');
+  }
+}
+
 // Fungsi download kode
 function downloadCode() {
   const format = document.querySelector('.tab-button.active').dataset.format;
   const code = document.getElementById('codeOutput').textContent;
   const blob = new Blob([code], { type: 'text/plain' });
-  const filename = `esp32_code.${format}`;
+  const filename = format === 'binary' ? 'esp32_code.bin' : format === 'arduino' ? 'esp32_code.ino' : `esp32_code.${format}`;
   saveAs(blob, filename);
 }
 
